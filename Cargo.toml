@@ -5,4 +5,8 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[build-dependencies]
+capnpc = "0.14"
+
 [dependencies]
+capnp = "0.14"
