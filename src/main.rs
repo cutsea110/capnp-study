@@ -6,6 +6,11 @@ pub mod diamond_capnp {
 }
 
 struct FooImpl;
+impl FooImpl {
+    pub fn new() -> Self {
+        Self
+    }
+}
 impl diamond_capnp::foo::Server for FooImpl {
     fn get_bar(
         &mut self,
@@ -15,10 +20,10 @@ impl diamond_capnp::foo::Server for FooImpl {
         panic!("TODO")
     }
 
-    fn get_buz(
+    fn get_baz(
         &mut self,
-        _: diamond_capnp::foo::GetBuzParams,
-        _: diamond_capnp::foo::GetBuzResults,
+        _: diamond_capnp::foo::GetBazParams,
+        _: diamond_capnp::foo::GetBazResults,
     ) -> Promise<(), capnp::Error> {
         panic!("TODO")
     }
@@ -26,6 +31,13 @@ impl diamond_capnp::foo::Server for FooImpl {
 
 struct BarImpl {
     name: String,
+}
+impl BarImpl {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+        }
+    }
 }
 impl diamond_capnp::bar::Server for BarImpl {
     fn read_val(
@@ -40,22 +52,32 @@ impl diamond_capnp::bar::Server for BarImpl {
 struct BuzImpl {
     age: u16,
 }
-impl diamond_capnp::buz::Server for BuzImpl {
+impl BuzImpl {
+    pub fn new(age: u16) -> Self {
+        Self { age }
+    }
+}
+impl diamond_capnp::baz::Server for BuzImpl {
     fn read_val(
         &mut self,
-        _: diamond_capnp::buz::ReadValParams,
-        _: diamond_capnp::buz::ReadValResults,
+        _: diamond_capnp::baz::ReadValParams,
+        _: diamond_capnp::baz::ReadValResults,
     ) -> Promise<(), capnp::Error> {
         panic!("TODO")
     }
 }
 
-struct MooImpl;
-impl diamond_capnp::moo::Server for MooImpl {
+struct QuxImpl;
+impl QuxImpl {
+    pub fn new() -> Self {
+        Self
+    }
+}
+impl diamond_capnp::qux::Server for QuxImpl {
     fn calc(
         &mut self,
-        _: diamond_capnp::moo::CalcParams,
-        _: diamond_capnp::moo::CalcResults,
+        _: diamond_capnp::qux::CalcParams,
+        _: diamond_capnp::qux::CalcResults,
     ) -> Promise<(), capnp::Error> {
         panic!("TODO")
     }

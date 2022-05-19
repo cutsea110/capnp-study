@@ -2,17 +2,17 @@
 
 interface Foo {
   getBar @0 (name :Text) -> (bar :Bar);
-  getBuz @1 (age :UInt16) -> (buz :Buz);
+  getBaz @1 (age :UInt16) -> (buz :Baz);
 }
 
 interface Bar {
   readVal @0 () -> (val :Text);
 }
 
-interface Buz {
+interface Baz {
   readVal @0 () -> (val :UInt16);
 }
 
-interface Moo {
-  calc @0 (bar :Bar, buz :Buz) -> (name :Text, age :UInt16);
+interface Qux {
+  calc @0 (bar :Bar, baz :Baz) -> (name :Text, age :UInt16);
 }
