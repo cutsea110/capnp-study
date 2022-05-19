@@ -1,5 +1,6 @@
 extern crate capnp;
 use capnp::capability::Promise;
+use capnp_rpc::pry;
 
 pub mod diamond_capnp {
     include!(concat!(env!("OUT_DIR"), "/diamond_capnp.rs"));
@@ -43,27 +44,31 @@ impl diamond_capnp::bar::Server for BarImpl {
     fn read_val(
         &mut self,
         _: diamond_capnp::bar::ReadValParams,
-        _: diamond_capnp::bar::ReadValResults,
+        mut results: diamond_capnp::bar::ReadValResults,
     ) -> Promise<(), capnp::Error> {
-        panic!("TODO")
+        results.get().set_val(self.name.as_str().into());
+
+        Promise::ok(())
     }
 }
 
-struct BuzImpl {
+struct BazImpl {
     age: u16,
 }
-impl BuzImpl {
+impl BazImpl {
     pub fn new(age: u16) -> Self {
         Self { age }
     }
 }
-impl diamond_capnp::baz::Server for BuzImpl {
+impl diamond_capnp::baz::Server for BazImpl {
     fn read_val(
         &mut self,
         _: diamond_capnp::baz::ReadValParams,
-        _: diamond_capnp::baz::ReadValResults,
+        mut results: diamond_capnp::baz::ReadValResults,
     ) -> Promise<(), capnp::Error> {
-        panic!("TODO")
+        results.get().set_val(self.age);
+
+        Promise::ok(())
     }
 }
 
@@ -76,10 +81,38 @@ impl QuxImpl {
 impl diamond_capnp::qux::Server for QuxImpl {
     fn calc(
         &mut self,
-        _: diamond_capnp::qux::CalcParams,
-        _: diamond_capnp::qux::CalcResults,
+        params: diamond_capnp::qux::CalcParams,
+        mut results: diamond_capnp::qux::CalcResults,
     ) -> Promise<(), capnp::Error> {
-        panic!("TODO")
+        let bar = pry!(pry!(params.get()).get_bar());
+        let name: Promise<String, capnp::Error> = Promise::from_future(async move {
+            Ok(bar
+                .read_val_request()
+                .send()
+                .promise
+                .await?
+                .get()?
+                .get_val()?
+                .to_string())
+        });
+
+        let baz = pry!(pry!(params.get()).get_baz());
+        let age: Promise<u16, capnp::Error> = Promise::from_future(async move {
+            Ok(baz
+                .read_val_request()
+                .send()
+                .promise
+                .await?
+                .get()?
+                .get_val())
+        });
+
+        Promise::from_future(async move {
+            results.get().set_age(age.await?);
+            results.get().set_name(name.await?.as_str());
+
+            Ok(())
+        })
     }
 }
 
