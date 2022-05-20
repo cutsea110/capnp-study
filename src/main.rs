@@ -1,6 +1,8 @@
 extern crate capnp;
 use capnp::capability::Promise;
-use capnp_rpc::pry;
+use capnp_rpc::{pry, rpc_twoparty_capnp, twoparty, RpcSystem};
+use futures::{AsyncReadExt, FutureExt};
+use std::net::{SocketAddr, ToSocketAddrs};
 
 pub mod diamond_capnp {
     include!(concat!(env!("OUT_DIR"), "/diamond_capnp.rs"));
@@ -125,6 +127,29 @@ impl diamond_capnp::qux::Server for QuxImpl {
 }
 
 #[tokio::main]
-async fn main() {
-    println!("Hello");
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let addr = "127.0.0.1:3000".to_socket_addrs()?.next().unwrap();
+
+    tokio::task::LocalSet::new().run_until(try_main(addr)).await
+}
+
+async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
+    let listener = tokio::net::TcpListener::bind(&addr).await?;
+    let foo_client: diamond_capnp::foo::Client = capnp_rpc::new_client(FooImpl::new());
+
+    loop {
+        let (stream, _) = listener.accept().await?;
+        stream.set_nodelay(true)?;
+        let (reader, writer) = tokio_util::compat::TokioAsyncReadCompatExt::compat(stream).split();
+        let rpc_network = Box::new(twoparty::VatNetwork::new(
+            reader,
+            writer,
+            rpc_twoparty_capnp::Side::Server,
+            Default::default(),
+        ));
+
+        let rpc_system = RpcSystem::new(rpc_network, Some(foo_client.clone().client));
+
+        tokio::task::spawn_local(Box::pin(rpc_system.map(|_| ())));
+    }
 }
