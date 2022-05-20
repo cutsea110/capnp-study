@@ -15,18 +15,26 @@ impl FooImpl {
 impl diamond_capnp::foo::Server for FooImpl {
     fn get_bar(
         &mut self,
-        _: diamond_capnp::foo::GetBarParams,
-        _: diamond_capnp::foo::GetBarResults,
+        params: diamond_capnp::foo::GetBarParams,
+        mut results: diamond_capnp::foo::GetBarResults,
     ) -> Promise<(), capnp::Error> {
-        panic!("TODO")
+        let name = pry!(pry!(params.get()).get_name());
+        let bar: diamond_capnp::bar::Client = capnp_rpc::new_client(BarImpl::new(name));
+        results.get().set_bar(bar);
+
+        Promise::ok(())
     }
 
     fn get_baz(
         &mut self,
-        _: diamond_capnp::foo::GetBazParams,
-        _: diamond_capnp::foo::GetBazResults,
+        params: diamond_capnp::foo::GetBazParams,
+        mut results: diamond_capnp::foo::GetBazResults,
     ) -> Promise<(), capnp::Error> {
-        panic!("TODO")
+        let age = pry!(params.get()).get_age();
+        let baz: diamond_capnp::baz::Client = capnp_rpc::new_client(BazImpl::new(age));
+        results.get().set_baz(baz);
+
+        Promise::ok(())
     }
 }
 

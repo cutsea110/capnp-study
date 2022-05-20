@@ -2,7 +2,7 @@
 
 interface Foo {
   getBar @0 (name :Text) -> (bar :Bar);
-  getBaz @1 (age :UInt16) -> (buz :Baz);
+  getBaz @1 (age :UInt16) -> (baz :Baz);
 }
 
 interface Bar {
