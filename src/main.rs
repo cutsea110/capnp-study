@@ -125,8 +125,6 @@ impl diamond_capnp::qux::Server for QuxImpl {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() {
     println!("Hello");
-
-    Ok(())
 }
