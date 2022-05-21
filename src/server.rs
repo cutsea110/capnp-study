@@ -84,51 +84,6 @@ impl diamond_capnp::baz::Server for BazImpl {
     }
 }
 
-struct QuxImpl;
-impl QuxImpl {
-    pub fn new() -> Self {
-        Self
-    }
-}
-impl diamond_capnp::qux::Server for QuxImpl {
-    fn calc(
-        &mut self,
-        params: diamond_capnp::qux::CalcParams,
-        mut results: diamond_capnp::qux::CalcResults,
-    ) -> Promise<(), capnp::Error> {
-        trace!("get_qux calc");
-        let bar = pry!(pry!(params.get()).get_bar());
-        let name: Promise<String, capnp::Error> = Promise::from_future(async move {
-            Ok(bar
-                .read_val_request()
-                .send()
-                .promise
-                .await?
-                .get()?
-                .get_val()?
-                .to_string())
-        });
-
-        let baz = pry!(pry!(params.get()).get_baz());
-        let age: Promise<u16, capnp::Error> = Promise::from_future(async move {
-            Ok(baz
-                .read_val_request()
-                .send()
-                .promise
-                .await?
-                .get()?
-                .get_val())
-        });
-
-        Promise::from_future(async move {
-            results.get().set_age(age.await?);
-            results.get().set_name(name.await?.as_str());
-
-            Ok(())
-        })
-    }
-}
-
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "127.0.0.1:3000".to_socket_addrs()?.next().unwrap();
 
