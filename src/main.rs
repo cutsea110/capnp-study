@@ -1,3 +1,5 @@
+use env_logger::Env;
+
 extern crate capnp;
 
 pub mod diamond_capnp {
@@ -9,6 +11,8 @@ pub mod server;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    env_logger::Builder::from_env(Env::default().default_filter_or("warn")).init();
+
     let args: Vec<String> = ::std::env::args().collect();
     if args.len() >= 2 {
         let sc = args[1].as_str();
