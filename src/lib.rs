@@ -1,3 +1,5 @@
+use std::{thread, time::Duration};
+
 use capnp::capability::Promise;
 use capnp_rpc::pry;
 use log::trace;
@@ -5,6 +7,8 @@ use log::trace;
 pub mod diamond_capnp {
     include!(concat!(env!("OUT_DIR"), "/diamond_capnp.rs"));
 }
+
+pub const SLEEP_SECS: u64 = 1;
 
 pub struct FooImpl;
 impl FooImpl {
@@ -179,6 +183,40 @@ impl diamond_capnp::counter::Server for CounterImpl {
         results.get().set_count(self.c);
 
         Promise::ok(())
+    }
+    fn run_fast(
+        &mut self,
+        _: diamond_capnp::counter::RunFastParams,
+        mut results: diamond_capnp::counter::RunFastResults,
+    ) -> Promise<(), capnp::Error> {
+        Promise::from_future(async move {
+            let counter_client: diamond_capnp::counter::Client =
+                capnp_rpc::new_client(CounterImpl::new(20));
+            while counter_client
+                .next_request()
+                .send()
+                .pipeline
+                .get_exist()
+                .get_raw_request()
+                .send()
+                .promise
+                .await?
+                .get()?
+                .get_raw()
+            {
+                thread::sleep(Duration::from_secs(SLEEP_SECS));
+                let c = counter_client
+                    .get_count_request()
+                    .send()
+                    .promise
+                    .await?
+                    .get()?
+                    .get_count();
+                results.get().set_count(c);
+            }
+
+            Ok(())
+        })
     }
 }
 

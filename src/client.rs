@@ -6,7 +6,7 @@ use std::{
     time::Duration,
 };
 
-use capnp_study::{diamond_capnp, CounterImpl, QuxImpl};
+use capnp_study::{diamond_capnp, CounterImpl, QuxImpl, SLEEP_SECS};
 
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "127.0.0.1:3000".to_socket_addrs()?.next().unwrap();
@@ -28,8 +28,6 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
     let foo: diamond_capnp::foo::Client = rpc_system.bootstrap(rpc_twoparty_capnp::Side::Server);
 
     tokio::task::spawn_local(Box::pin(rpc_system.map(|_| ())));
-
-    const SLEEP_SECS: u64 = 0;
 
     {
         println!("first test");
@@ -73,6 +71,10 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
         println!("name: {}({}), age: {}", name, desc, age);
     }
 
+    println!("wait...");
+    thread::sleep(Duration::from_secs(3));
+    println!("done");
+
     {
         println!("second test");
         let mut bar_req = foo.get_bar_request();
@@ -114,6 +116,10 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
         println!("name: {}, age: {}", name, age);
     }
 
+    println!("wait...");
+    thread::sleep(Duration::from_secs(3));
+    println!("done");
+
     {
         println!("third test");
 
@@ -138,6 +144,28 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
 
         let c = counter_client
             .get_count_request()
+            .send()
+            .promise
+            .await?
+            .get()?
+            .get_count();
+        println!("last c: {}", c);
+
+        println!("Done");
+    }
+
+    println!("wait...");
+    thread::sleep(Duration::from_secs(3));
+    println!("done");
+
+    {
+        println!("fourth test");
+
+        let counter_client: diamond_capnp::counter::Client =
+            capnp_rpc::new_client(CounterImpl::new(20));
+
+        let c = counter_client
+            .run_fast_request()
             .send()
             .promise
             .await?

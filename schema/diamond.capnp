@@ -25,4 +25,5 @@ interface BoolBox {
 interface Counter {
   next     @0 () -> (exist :BoolBox);
   getCount @1 (ok :BoolBox) -> (count :UInt16);
+  runFast  @2 () -> (count :UInt16);
 }
