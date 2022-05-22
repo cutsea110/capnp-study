@@ -27,6 +27,7 @@ impl diamond_capnp::foo::Server for FooImpl {
         let bar: diamond_capnp::bar::Client = capnp_rpc::new_client(BarImpl::new(name));
         results.get().set_bar(bar);
 
+        trace!("get_bar name called");
         Promise::ok(())
     }
 
@@ -40,6 +41,7 @@ impl diamond_capnp::foo::Server for FooImpl {
         let baz: diamond_capnp::baz::Client = capnp_rpc::new_client(BazImpl::new(age));
         results.get().set_baz(baz);
 
+        trace!("get_baz age called");
         Promise::ok(())
     }
     fn get_counter(
@@ -53,6 +55,7 @@ impl diamond_capnp::foo::Server for FooImpl {
             capnp_rpc::new_client(CounterImpl::new(limit));
         results.get().set_counter(counter);
 
+        trace!("get_counter called");
         Promise::ok(())
     }
 }
@@ -76,6 +79,7 @@ impl diamond_capnp::bar::Server for BarImpl {
         trace!("get_bar read_val");
         results.get().set_val(self.name.as_str().into());
 
+        trace!("get_bar read_val called");
         Promise::ok(())
     }
 }
@@ -97,6 +101,7 @@ impl diamond_capnp::baz::Server for BazImpl {
         trace!("get_baz read_val");
         results.get().set_val(self.age);
 
+        trace!("get_baz read_val called");
         Promise::ok(())
     }
 }
@@ -145,6 +150,7 @@ impl diamond_capnp::qux::Server for QuxImpl {
                 .get()
                 .set_name(&format!("{}({})", name.await?.as_str(), desc));
 
+            trace!("calc called");
             Ok(())
         })
     }
@@ -172,6 +178,7 @@ impl diamond_capnp::counter::Server for CounterImpl {
             capnp_rpc::new_client(BoolBoxImpl::new(b));
         results.get().set_exist(boolbox_client);
 
+        trace!("next called");
         Promise::ok(())
     }
     fn get_count(
@@ -182,6 +189,7 @@ impl diamond_capnp::counter::Server for CounterImpl {
         trace!("get_count c: {}", self.c);
         results.get().set_count(self.c);
 
+        trace!("get_count called");
         Promise::ok(())
     }
     fn run_fast(
@@ -189,6 +197,7 @@ impl diamond_capnp::counter::Server for CounterImpl {
         _: diamond_capnp::counter::RunFastParams,
         mut results: diamond_capnp::counter::RunFastResults,
     ) -> Promise<(), capnp::Error> {
+        trace!("run_fast");
         Promise::from_future(async move {
             let counter_client: diamond_capnp::counter::Client =
                 capnp_rpc::new_client(CounterImpl::new(20));
@@ -215,6 +224,7 @@ impl diamond_capnp::counter::Server for CounterImpl {
                 results.get().set_count(c);
             }
 
+            trace!("run_fast called");
             Ok(())
         })
     }
@@ -237,6 +247,7 @@ impl diamond_capnp::bool_box::Server for BoolBoxImpl {
         trace!("get_raw: {}", self.b);
         results.get().set_raw(self.b);
 
+        trace!("get_raw called");
         Promise::ok(())
     }
 }
