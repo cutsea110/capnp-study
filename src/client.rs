@@ -47,8 +47,12 @@ impl diamond_capnp::qux::Server for QuxImpl {
         });
 
         Promise::from_future(async move {
-            results.get().set_age(age.await?);
-            results.get().set_name(name.await?.as_str());
+            let age = age.await?;
+            let desc = if age >= 18 { "Adult" } else { "Child" };
+            results.get().set_age(age);
+            results
+                .get()
+                .set_name(&format!("{}({})", name.await?.as_str(), desc));
 
             Ok(())
         })
@@ -113,7 +117,9 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
         println!("---");
         thread::sleep(Duration::from_secs(1));
 
-        println!("name: {}, age: {}", name, age);
+        let desc = if age >= 18 { "Adult" } else { "Child" };
+
+        println!("name: {}({}), age: {}", name, desc, age);
     }
 
     {
