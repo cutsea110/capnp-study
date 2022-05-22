@@ -119,13 +119,18 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
 
         let counter_client: diamond_capnp::counter::Client =
             capnp_rpc::new_client(CounterImpl::new(20));
+
         while counter_client
             .next_request()
+            .send()
+            .pipeline
+            .get_exist()
+            .get_raw_request()
             .send()
             .promise
             .await?
             .get()?
-            .get_exist()
+            .get_raw()
         {
             println!("---");
             thread::sleep(Duration::from_secs(SLEEP_SECS));

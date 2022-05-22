@@ -163,7 +163,10 @@ impl diamond_capnp::counter::Server for CounterImpl {
     ) -> Promise<(), capnp::Error> {
         self.c += 1;
         trace!("next: {}, c: {}", self.c <= self.limit, self.c);
-        results.get().set_exist(self.c <= self.limit);
+        let b = self.c <= self.limit;
+        let boolbox_client: diamond_capnp::bool_box::Client =
+            capnp_rpc::new_client(BoolBoxImpl::new(b));
+        results.get().set_exist(boolbox_client);
 
         Promise::ok(())
     }
@@ -174,6 +177,27 @@ impl diamond_capnp::counter::Server for CounterImpl {
     ) -> Promise<(), capnp::Error> {
         trace!("get_count c: {}", self.c);
         results.get().set_count(self.c);
+
+        Promise::ok(())
+    }
+}
+
+pub struct BoolBoxImpl {
+    b: bool,
+}
+impl BoolBoxImpl {
+    pub fn new(b: bool) -> Self {
+        Self { b }
+    }
+}
+impl diamond_capnp::bool_box::Server for BoolBoxImpl {
+    fn get_raw(
+        &mut self,
+        _: diamond_capnp::bool_box::GetRawParams,
+        mut results: diamond_capnp::bool_box::GetRawResults,
+    ) -> Promise<(), capnp::Error> {
+        trace!("get_raw: {}", self.b);
+        results.get().set_raw(self.b);
 
         Promise::ok(())
     }

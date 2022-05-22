@@ -18,7 +18,11 @@ interface Qux {
   calc @0 (bar :Bar, baz :Baz) -> (name :Text, age :UInt16);
 }
 
+interface BoolBox {
+  getRaw @0 () -> (raw :Bool);
+}
+
 interface Counter {
-  next     @0 () -> (exist :Bool);
-  getCount @1 () -> (count :UInt16);
+  next     @0 () -> (exist :BoolBox);
+  getCount @1 (ok :BoolBox) -> (count :UInt16);
 }
