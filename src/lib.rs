@@ -222,6 +222,7 @@ impl diamond_capnp::counter::Server for CounterImpl {
                     .get()?
                     .get_count();
                 results.get().set_count(c);
+                trace!("---");
             }
 
             trace!("run_fast called");
