@@ -6,7 +6,7 @@ use std::{
     time::Duration,
 };
 
-use capnp_study::{diamond_capnp, QuxImpl};
+use capnp_study::{diamond_capnp, CounterImpl, QuxImpl};
 
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "127.0.0.1:3000".to_socket_addrs()?.next().unwrap();
@@ -110,6 +110,42 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
         thread::sleep(Duration::from_secs(1));
 
         println!("name: {}, age: {}", name, age);
+    }
+
+    {
+        println!("third test");
+
+        let counter_client: diamond_capnp::counter::Client =
+            capnp_rpc::new_client(CounterImpl::new(20));
+        while counter_client
+            .next_request()
+            .send()
+            .promise
+            .await?
+            .get()?
+            .get_exist()
+        {
+            println!("---");
+            let c = counter_client
+                .get_count_request()
+                .send()
+                .promise
+                .await?
+                .get()?
+                .get_count();
+            println!("c: {}", c);
+        }
+
+        let c = counter_client
+            .get_count_request()
+            .send()
+            .promise
+            .await?
+            .get()?
+            .get_count();
+        println!("last c: {}", c);
+
+        println!("Done");
     }
 
     Ok(())

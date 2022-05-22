@@ -152,7 +152,7 @@ pub struct CounterImpl {
 }
 impl CounterImpl {
     pub fn new(limit: u16) -> Self {
-        Self { limit, c: 1 }
+        Self { limit, c: 0 }
     }
 }
 impl diamond_capnp::counter::Server for CounterImpl {
@@ -161,9 +161,9 @@ impl diamond_capnp::counter::Server for CounterImpl {
         _: diamond_capnp::counter::NextParams,
         mut results: diamond_capnp::counter::NextResults,
     ) -> Promise<(), capnp::Error> {
-        trace!("next: {}", self.c > self.limit);
-        results.get().set_exist(self.c > self.limit);
         self.c += 1;
+        trace!("next: {}, c: {}", self.c <= self.limit, self.c);
+        results.get().set_exist(self.c <= self.limit);
 
         Promise::ok(())
     }
