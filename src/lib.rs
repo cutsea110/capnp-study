@@ -38,6 +38,19 @@ impl diamond_capnp::foo::Server for FooImpl {
 
         Promise::ok(())
     }
+    fn get_counter(
+        &mut self,
+        params: diamond_capnp::foo::GetCounterParams,
+        mut results: diamond_capnp::foo::GetCounterResults,
+    ) -> Promise<(), capnp::Error> {
+        let limit = pry!(params.get()).get_limit();
+        trace!("get_counter limit: {}", limit);
+        let counter: diamond_capnp::counter::Client =
+            capnp_rpc::new_client(CounterImpl::new(limit));
+        results.get().set_counter(counter);
+
+        Promise::ok(())
+    }
 }
 
 pub struct BarImpl {
@@ -130,5 +143,38 @@ impl diamond_capnp::qux::Server for QuxImpl {
 
             Ok(())
         })
+    }
+}
+
+pub struct CounterImpl {
+    limit: u16,
+    c: u16,
+}
+impl CounterImpl {
+    pub fn new(limit: u16) -> Self {
+        Self { limit, c: 1 }
+    }
+}
+impl diamond_capnp::counter::Server for CounterImpl {
+    fn next(
+        &mut self,
+        _: diamond_capnp::counter::NextParams,
+        mut results: diamond_capnp::counter::NextResults,
+    ) -> Promise<(), capnp::Error> {
+        trace!("next: {}", self.c > self.limit);
+        results.get().set_exist(self.c > self.limit);
+        self.c += 1;
+
+        Promise::ok(())
+    }
+    fn get_count(
+        &mut self,
+        _: diamond_capnp::counter::GetCountParams,
+        mut results: diamond_capnp::counter::GetCountResults,
+    ) -> Promise<(), capnp::Error> {
+        trace!("get_count c: {}", self.c);
+        results.get().set_count(self.c);
+
+        Promise::ok(())
     }
 }
