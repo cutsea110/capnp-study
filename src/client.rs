@@ -29,42 +29,44 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
 
     tokio::task::spawn_local(Box::pin(rpc_system.map(|_| ())));
 
+    const SLEEP_SECS: u64 = 0;
+
     {
         println!("first test");
 
         let mut bar_req = foo.get_bar_request();
         bar_req.get().set_name("Alice".into());
         println!("NET!");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let reply = bar_req.send().promise.await?;
         println!("NET!");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let bar = reply.get()?.get_bar()?;
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let reply = bar.read_val_request().send().promise.await?;
         println!("NET!");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let name = reply.get()?.get_val()?.to_string();
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
 
         let mut baz_req = foo.get_baz_request();
         baz_req.get().set_age(14);
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let reply = baz_req.send().promise.await?;
         println!("NET!");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let baz = reply.get()?.get_baz()?;
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let reply = baz.read_val_request().send().promise.await?;
         println!("NET!");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let age = reply.get()?.get_val();
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
 
         let desc = if age >= 18 { "Adult" } else { "Child" };
 
@@ -76,38 +78,38 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
         let mut bar_req = foo.get_bar_request();
         bar_req.get().set_name("Alice".into());
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let bar_client = bar_req.send().pipeline.get_bar();
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
 
         let mut baz_req = foo.get_baz_request();
         baz_req.get().set_age(14);
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let baz_client = baz_req.send().pipeline.get_baz();
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
 
         let qux_client: diamond_capnp::qux::Client = capnp_rpc::new_client(QuxImpl::new());
         let mut qux_req = qux_client.calc_request();
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         qux_req.get().set_bar(bar_client);
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         qux_req.get().set_baz(baz_client);
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let reply = qux_req.send().promise.await?;
         println!("NET!");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let name = reply.get()?.get_name()?;
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
         let age = reply.get()?.get_age();
         println!("---");
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(SLEEP_SECS));
 
         println!("name: {}, age: {}", name, age);
     }
@@ -126,14 +128,7 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             .get_exist()
         {
             println!("---");
-            let c = counter_client
-                .get_count_request()
-                .send()
-                .promise
-                .await?
-                .get()?
-                .get_count();
-            println!("c: {}", c);
+            thread::sleep(Duration::from_secs(SLEEP_SECS));
         }
 
         let c = counter_client
