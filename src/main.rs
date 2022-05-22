@@ -1,11 +1,5 @@
 use env_logger::Env;
 
-extern crate capnp;
-
-pub mod diamond_capnp {
-    include!(concat!(env!("OUT_DIR"), "/diamond_capnp.rs"));
-}
-
 pub mod client;
 pub mod server;
 
