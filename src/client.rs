@@ -1,5 +1,7 @@
 use capnp_rpc::{rpc_twoparty_capnp, twoparty, RpcSystem};
 use futures::{AsyncReadExt, FutureExt};
+use log::info;
+use std::time::Instant;
 use std::{
     net::{SocketAddr, ToSocketAddrs},
     thread,
@@ -33,6 +35,8 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
 
     {
         println!("first test");
+
+        let start = Instant::now();
 
         let mut bar_req = foo.get_bar_request();
         bar_req.get().set_name("Alice".into());
@@ -70,6 +74,13 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
 
         let desc = if age >= 18 { "Adult" } else { "Child" };
 
+        let end = start.elapsed();
+        info!(
+            "time: {}.{:03}s",
+            end.as_secs(),
+            end.subsec_nanos() / 1_000_000
+        );
+
         println!("name: {}({}), age: {}", name, desc, age);
     }
 
@@ -79,6 +90,9 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
 
     {
         println!("second test");
+
+        let start = Instant::now();
+
         let mut bar_req = foo.get_bar_request();
         bar_req.get().set_name("Alice".into());
         println!("---");
@@ -115,6 +129,13 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
         println!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
 
+        let end = start.elapsed();
+        info!(
+            "time: {}.{:03}s",
+            end.as_secs(),
+            end.subsec_nanos() / 1_000_000
+        );
+
         println!("name: {}, age: {}", name, age);
     }
 
@@ -124,6 +145,8 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
 
     {
         println!("third test");
+
+        let start = Instant::now();
 
         let counter_client: diamond_capnp::counter::Client =
             capnp_rpc::new_client(CounterImpl::new(20));
@@ -153,6 +176,13 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             .get_count();
         println!("last c: {}", c);
 
+        let end = start.elapsed();
+        info!(
+            "time: {}.{:03}s",
+            end.as_secs(),
+            end.subsec_nanos() / 1_000_000
+        );
+
         println!("Done");
     }
 
@@ -162,6 +192,8 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
 
     {
         println!("fourth test");
+
+        let start = Instant::now();
 
         let counter_client: diamond_capnp::counter::Client =
             capnp_rpc::new_client(CounterImpl::new(20));
@@ -174,6 +206,13 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             .get()?
             .get_count();
         println!("last c: {}", c);
+
+        let end = start.elapsed();
+        info!(
+            "time: {}.{:03}s",
+            end.as_secs(),
+            end.subsec_nanos() / 1_000_000
+        );
 
         println!("Done");
     }
