@@ -17,5 +17,5 @@ RUST_LOG=trace cargo run -- server
 term 2
 
 ``` shell
-cargo run -- client
+RUST_LOG=trace cargo run -- client
 ```
