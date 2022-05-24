@@ -10,7 +10,7 @@ use std::{
 
 use capnp_study::{diamond_capnp, CounterImpl, NaiveCounterImpl, QuxImpl, SHORT_SLEEP_SECS};
 
-const LONG_SLEEP_SECS: u64 = 3;
+const LONG_SLEEP_SECS: u64 = 0;
 
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "127.0.0.1:3000".to_socket_addrs()?.next().unwrap();

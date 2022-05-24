@@ -8,7 +8,7 @@ pub mod diamond_capnp {
     include!(concat!(env!("OUT_DIR"), "/diamond_capnp.rs"));
 }
 
-pub const SHORT_SLEEP_SECS: u64 = 1;
+pub const SHORT_SLEEP_SECS: u64 = 0;
 
 pub struct FooImpl;
 impl FooImpl {
