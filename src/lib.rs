@@ -172,8 +172,8 @@ impl diamond_capnp::counter::Server for CounterImpl {
         mut results: diamond_capnp::counter::NextResults,
     ) -> Promise<(), capnp::Error> {
         self.c += 1;
-        trace!("next: {}, c: {}", self.c <= self.limit, self.c);
         let b = self.c <= self.limit;
+        trace!("next: {}, c: {}", b, self.c);
         let boolbox_client: diamond_capnp::bool_box::Client =
             capnp_rpc::new_client(BoolBoxImpl::new(b));
         results.get().set_exist(boolbox_client);
@@ -249,6 +249,42 @@ impl diamond_capnp::bool_box::Server for BoolBoxImpl {
         results.get().set_raw(self.b);
 
         trace!("get_raw called");
+        Promise::ok(())
+    }
+}
+
+pub struct NaiveCounterImpl {
+    limit: u16,
+    c: u16,
+}
+impl NaiveCounterImpl {
+    pub fn new(limit: u16) -> Self {
+        Self { limit, c: 0 }
+    }
+}
+impl diamond_capnp::naive_counter::Server for NaiveCounterImpl {
+    fn next(
+        &mut self,
+        _: diamond_capnp::naive_counter::NextParams,
+        mut results: diamond_capnp::naive_counter::NextResults,
+    ) -> Promise<(), capnp::Error> {
+        self.c += 1;
+        let b = self.c <= self.limit;
+        trace!("next: {}, c: {}", b, self.c);
+        results.get().set_exist(b);
+
+        trace!("next called");
+        Promise::ok(())
+    }
+    fn get_count(
+        &mut self,
+        _: diamond_capnp::naive_counter::GetCountParams,
+        mut results: diamond_capnp::naive_counter::GetCountResults,
+    ) -> Promise<(), capnp::Error> {
+        trace!("get_count c: {}", self.c);
+        results.get().set_count(self.c);
+
+        trace!("get_count called");
         Promise::ok(())
     }
 }
