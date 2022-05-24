@@ -8,9 +8,9 @@ use std::{
     time::Duration,
 };
 
-use capnp_study::{diamond_capnp, CounterImpl, QuxImpl, SHORT_SLEEP_SECS};
+use capnp_study::{diamond_capnp, CounterImpl, NaiveCounterImpl, QuxImpl, SHORT_SLEEP_SECS};
 
-const LONG_SLEEP_SECS: u64 = 0;
+const LONG_SLEEP_SECS: u64 = 3;
 
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "127.0.0.1:3000".to_socket_addrs()?.next().unwrap();
@@ -215,6 +215,48 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
         );
 
         println!("Done");
+    }
+
+    println!("wait...");
+    thread::sleep(Duration::from_secs(LONG_SLEEP_SECS));
+    println!("done");
+
+    {
+        println!("fifth test");
+        let start = Instant::now();
+
+        let counter_client: diamond_capnp::naive_counter::Client =
+            capnp_rpc::new_client(NaiveCounterImpl::new(20));
+
+        while counter_client
+            .next_request()
+            .send()
+            .promise
+            .await?
+            .get()?
+            .get_exist()
+        {
+            println!("---");
+            thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
+        }
+
+        let c = counter_client
+            .get_count_request()
+            .send()
+            .promise
+            .await?
+            .get()?
+            .get_count();
+        println!("last c: {}", c);
+
+        let end = start.elapsed();
+        info!(
+            "time: {}.{:03}s",
+            end.as_secs(),
+            end.subsec_nanos() / 1_000_000
+        );
+
+        println!("done");
     }
 
     Ok(())
