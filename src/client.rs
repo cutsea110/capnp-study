@@ -163,18 +163,16 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             .get()?
             .get_raw()
         {
-            println!("---");
+            let c = counter_client
+                .get_count_request()
+                .send()
+                .promise
+                .await?
+                .get()?
+                .get_count();
+            println!("last c: {}", c);
             thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         }
-
-        let c = counter_client
-            .get_count_request()
-            .send()
-            .promise
-            .await?
-            .get()?
-            .get_count();
-        println!("last c: {}", c);
 
         let end = start.elapsed();
         info!(
@@ -236,18 +234,16 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             .get()?
             .get_exist()
         {
-            println!("---");
+            let c = counter_client
+                .get_count_request()
+                .send()
+                .promise
+                .await?
+                .get()?
+                .get_count();
+            println!("last c: {}", c);
             thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         }
-
-        let c = counter_client
-            .get_count_request()
-            .send()
-            .promise
-            .await?
-            .get()?
-            .get_count();
-        println!("last c: {}", c);
 
         let end = start.elapsed();
         info!(
