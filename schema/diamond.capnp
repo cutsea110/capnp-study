@@ -27,3 +27,8 @@ interface Counter {
   getCount @1 (ok :BoolBox) -> (count :UInt16);
   runFast  @2 () -> (count :UInt16);
 }
+
+interface NaiveCounter {
+  next     @0 () -> (exist :Bool);
+  getCount @1 () -> (count: UInt16);
+}
