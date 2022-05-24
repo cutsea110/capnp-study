@@ -1,9 +1,10 @@
 @0xd35bf1654de4b048;
 
 interface Foo {
-  getBar     @0 (name :Text) -> (bar :Bar);
-  getBaz     @1 (age :UInt16) -> (baz :Baz);
-  getCounter @2 (limit :UInt16) -> (counter :Counter);
+  getBar          @0 (name :Text) -> (bar :Bar);
+  getBaz          @1 (age :UInt16) -> (baz :Baz);
+  getCounter      @2 (limit :UInt16) -> (counter :Counter);
+  getNaiveCounter @3 (limit :UInt16) -> (naiveCounter :NaiveCounter);
 }
 
 interface Bar {

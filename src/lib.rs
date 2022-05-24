@@ -58,6 +58,20 @@ impl diamond_capnp::foo::Server for FooImpl {
         trace!("get_counter called");
         Promise::ok(())
     }
+    fn get_naive_counter(
+        &mut self,
+        params: diamond_capnp::foo::GetNaiveCounterParams,
+        mut results: diamond_capnp::foo::GetNaiveCounterResults,
+    ) -> Promise<(), capnp::Error> {
+        let limit = pry!(params.get()).get_limit();
+        trace!("get_naive_counter limit: {}", limit);
+        let counter: diamond_capnp::naive_counter::Client =
+            capnp_rpc::new_client(NaiveCounterImpl::new(limit));
+        results.get().set_naive_counter(counter);
+
+        trace!("get_naive_counter called");
+        Promise::ok(())
+    }
 }
 
 pub struct BarImpl {
