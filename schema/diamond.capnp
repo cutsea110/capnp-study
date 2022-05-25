@@ -5,6 +5,7 @@ interface Foo {
   getBaz          @1 (age :UInt16) -> (baz :Baz);
   getCounter      @2 (limit :UInt16) -> (counter :Counter);
   getNaiveCounter @3 (limit :UInt16) -> (naiveCounter :NaiveCounter);
+  getRose         @4 (depth :UInt16) -> (rose :Rose);
 }
 
 interface Bar {
@@ -31,5 +32,11 @@ interface Counter {
 
 interface NaiveCounter {
   next     @0 () -> (exist :Bool);
-  getCount @1 () -> (count: UInt16);
+  getCount @1 () -> (count :UInt16);
+}
+
+interface Rose {
+  getName @0 () -> (name :Text);
+  getAge  @1 () -> (age :UInt16);
+  getSub  @2 () -> (sub :Rose);
 }
