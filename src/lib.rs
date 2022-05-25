@@ -317,16 +317,6 @@ impl diamond_capnp::rose::Server for RoseImpl {
         _: diamond_capnp::rose::ShapeParams,
         mut results: diamond_capnp::rose::ShapeResults,
     ) -> Promise<(), capnp::Error> {
-        let shape: diamond_capnp::rose::shape::Reader = match self.depth % 2 {
-            0 => {
-                panic!("TODO")
-            }
-            _ => {
-                panic!("TODO")
-            }
-        };
-        results.get().set_s(shape).unwrap();
-
         Promise::ok(())
     }
     fn color(

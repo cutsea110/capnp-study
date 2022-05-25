@@ -48,8 +48,10 @@ interface Rose {
     blue  @2;
   }
   struct Shape {
-    circle    @0 :Circle;
-    rectangle @1 :Rectangle;
+    union {
+      circle    @0 :Circle;
+      rectangle @1 :Rectangle;
+    }
   }
   interface Circle {
     getRadius @0 () -> (r :UInt16);
