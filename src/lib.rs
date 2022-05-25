@@ -302,3 +302,42 @@ impl diamond_capnp::naive_counter::Server for NaiveCounterImpl {
         Promise::ok(())
     }
 }
+
+pub struct RoseImpl {
+    depth: u16,
+}
+impl RoseImpl {
+    pub fn new(depth: u16) -> Self {
+        Self { depth }
+    }
+}
+impl diamond_capnp::rose::Server for RoseImpl {
+    fn color(
+        &mut self,
+        _: diamond_capnp::rose::ColorParams,
+        _: diamond_capnp::rose::ColorResults,
+    ) -> Promise<(), capnp::Error> {
+        panic!("TODO")
+    }
+    fn get_name(
+        &mut self,
+        _: diamond_capnp::rose::GetNameParams,
+        _: diamond_capnp::rose::GetNameResults,
+    ) -> Promise<(), capnp::Error> {
+        panic!("TODO")
+    }
+    fn get_age(
+        &mut self,
+        _: diamond_capnp::rose::GetAgeParams,
+        _: diamond_capnp::rose::GetAgeResults,
+    ) -> Promise<(), capnp::Error> {
+        panic!("TODO")
+    }
+    fn get_sub(
+        &mut self,
+        _: diamond_capnp::rose::GetSubParams,
+        _: diamond_capnp::rose::GetSubResults,
+    ) -> Promise<(), capnp::Error> {
+        panic!("TODO")
+    }
+}

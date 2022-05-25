@@ -36,7 +36,14 @@ interface NaiveCounter {
 }
 
 interface Rose {
-  getName @0 () -> (name :Text);
-  getAge  @1 () -> (age :UInt16);
-  getSub  @2 () -> (sub :Rose);
+  color   @0 () -> (color :Color);
+  getName @1 () -> (name :Text);
+  getAge  @2 () -> (age :UInt16);
+  getSub  @3 () -> (sub :Rose);
+
+  enum Color {
+    red   @0;
+    green @1;
+    blue  @2;
+  }
 }
