@@ -315,30 +315,49 @@ impl diamond_capnp::rose::Server for RoseImpl {
     fn shape(
         &mut self,
         _: diamond_capnp::rose::ShapeParams,
-        _: diamond_capnp::rose::ShapeResults,
+        mut results: diamond_capnp::rose::ShapeResults,
     ) -> Promise<(), capnp::Error> {
-        panic!("TODO")
+        let shape: diamond_capnp::rose::shape::Reader = match self.depth % 2 {
+            0 => {
+                panic!("TODO")
+            }
+            _ => {
+                panic!("TODO")
+            }
+        };
+        results.get().set_s(shape).unwrap();
+
+        Promise::ok(())
     }
     fn color(
         &mut self,
         _: diamond_capnp::rose::ColorParams,
-        _: diamond_capnp::rose::ColorResults,
+        mut results: diamond_capnp::rose::ColorResults,
     ) -> Promise<(), capnp::Error> {
-        panic!("TODO")
+        let color = match self.depth % 3 {
+            0 => diamond_capnp::rose::Color::Red,
+            1 => diamond_capnp::rose::Color::Green,
+            _ => diamond_capnp::rose::Color::Blue,
+        };
+        results.get().set_color(color);
+
+        Promise::ok(())
     }
     fn get_name(
         &mut self,
         _: diamond_capnp::rose::GetNameParams,
-        _: diamond_capnp::rose::GetNameResults,
+        mut results: diamond_capnp::rose::GetNameResults,
     ) -> Promise<(), capnp::Error> {
         panic!("TODO")
     }
     fn get_age(
         &mut self,
         _: diamond_capnp::rose::GetAgeParams,
-        _: diamond_capnp::rose::GetAgeResults,
+        mut results: diamond_capnp::rose::GetAgeResults,
     ) -> Promise<(), capnp::Error> {
-        panic!("TODO")
+        results.get().set_age(self.depth * 2);
+
+        Promise::ok(())
     }
     fn get_sub(
         &mut self,
