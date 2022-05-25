@@ -36,14 +36,26 @@ interface NaiveCounter {
 }
 
 interface Rose {
-  color   @0 () -> (color :Color);
-  getName @1 () -> (name :Text);
-  getAge  @2 () -> (age :UInt16);
-  getSub  @3 () -> (sub :Rose);
+  shape   @0 () -> (s :Shape);
+  color   @1 () -> (color :Color);
+  getName @2 () -> (name :Text);
+  getAge  @3 () -> (age :UInt16);
+  getSub  @4 () -> (sub :Rose);
 
   enum Color {
     red   @0;
     green @1;
     blue  @2;
+  }
+  struct Shape {
+    circle    @0 :Circle;
+    rectangle @1 :Rectangle;
+  }
+  interface Circle {
+    getRadius @0 () -> (r :UInt16);
+  }
+  interface Rectangle {
+    getWidth  @0 () -> (w :UInt16);
+    getHeight @1 () -> (h :UInt16);
   }
 }

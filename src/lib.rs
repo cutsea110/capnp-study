@@ -312,6 +312,13 @@ impl RoseImpl {
     }
 }
 impl diamond_capnp::rose::Server for RoseImpl {
+    fn shape(
+        &mut self,
+        _: diamond_capnp::rose::ShapeParams,
+        _: diamond_capnp::rose::ShapeResults,
+    ) -> Promise<(), capnp::Error> {
+        panic!("TODO")
+    }
     fn color(
         &mut self,
         _: diamond_capnp::rose::ColorParams,
