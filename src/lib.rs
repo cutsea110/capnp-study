@@ -1,7 +1,7 @@
 use std::{thread, time::Duration};
 
 use capnp::capability::Promise;
-use capnp_rpc::pry;
+use capnp_rpc::{pry, rpc_capnp};
 use log::trace;
 
 pub mod diamond_capnp {
@@ -303,6 +303,56 @@ impl diamond_capnp::naive_counter::Server for NaiveCounterImpl {
     }
 }
 
+pub struct CircleImpl {
+    r: u16,
+}
+impl CircleImpl {
+    pub fn new(r: u16) -> Self {
+        Self { r }
+    }
+}
+impl diamond_capnp::rose::circle::Server for CircleImpl {
+    fn get_radius(
+        &mut self,
+        _: diamond_capnp::rose::circle::GetRadiusParams,
+        mut results: diamond_capnp::rose::circle::GetRadiusResults,
+    ) -> Promise<(), capnp::Error> {
+        results.get().set_r(self.r);
+
+        Promise::ok(())
+    }
+}
+
+pub struct RectangleImpl {
+    w: u16,
+    h: u16,
+}
+impl RectangleImpl {
+    pub fn new(w: u16, h: u16) -> Self {
+        Self { w, h }
+    }
+}
+impl diamond_capnp::rose::rectangle::Server for RectangleImpl {
+    fn get_width(
+        &mut self,
+        _: diamond_capnp::rose::rectangle::GetWidthParams,
+        mut results: diamond_capnp::rose::rectangle::GetWidthResults,
+    ) -> Promise<(), capnp::Error> {
+        results.get().set_w(self.w);
+
+        Promise::ok(())
+    }
+    fn get_height(
+        &mut self,
+        _: diamond_capnp::rose::rectangle::GetHeightParams,
+        mut results: diamond_capnp::rose::rectangle::GetHeightResults,
+    ) -> Promise<(), capnp::Error> {
+        results.get().set_h(self.h);
+
+        Promise::ok(())
+    }
+}
+
 pub struct RoseImpl {
     depth: u16,
 }
@@ -317,6 +367,19 @@ impl diamond_capnp::rose::Server for RoseImpl {
         _: diamond_capnp::rose::ShapeParams,
         mut results: diamond_capnp::rose::ShapeResults,
     ) -> Promise<(), capnp::Error> {
+        match self.depth % 2 {
+            0 => {
+                let circle: diamond_capnp::rose::circle::Client =
+                    capnp_rpc::new_client(CircleImpl::new(7));
+                results.get().init_s().set_circle(circle);
+            }
+            _ => {
+                let rectangle: diamond_capnp::rose::rectangle::Client =
+                    capnp_rpc::new_client(RectangleImpl::new(13, 19));
+                results.get().init_s().set_rectangle(rectangle);
+            }
+        };
+
         Promise::ok(())
     }
     fn color(
