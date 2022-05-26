@@ -401,7 +401,11 @@ impl diamond_capnp::rose::Server for RoseImpl {
         _: diamond_capnp::rose::GetNameParams,
         mut results: diamond_capnp::rose::GetNameResults,
     ) -> Promise<(), capnp::Error> {
-        panic!("TODO")
+        results
+            .get()
+            .set_name(format!("name{}", self.depth).as_str().into());
+
+        Promise::ok(())
     }
     fn get_age(
         &mut self,
@@ -415,7 +419,7 @@ impl diamond_capnp::rose::Server for RoseImpl {
     fn get_sub(
         &mut self,
         _: diamond_capnp::rose::GetSubParams,
-        _: diamond_capnp::rose::GetSubResults,
+        mut results: diamond_capnp::rose::GetSubResults,
     ) -> Promise<(), capnp::Error> {
         panic!("TODO")
     }
