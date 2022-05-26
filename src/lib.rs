@@ -421,6 +421,10 @@ impl diamond_capnp::rose::Server for RoseImpl {
         _: diamond_capnp::rose::GetSubParams,
         mut results: diamond_capnp::rose::GetSubResults,
     ) -> Promise<(), capnp::Error> {
-        panic!("TODO")
+        let client: diamond_capnp::rose::Client =
+            capnp_rpc::new_client(RoseImpl::new(self.depth - 1));
+        results.get().set_sub(client);
+
+        Promise::ok(())
     }
 }
