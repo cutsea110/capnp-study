@@ -1,6 +1,7 @@
-use capnp_rpc::{rpc_twoparty_capnp, twoparty, RpcSystem};
-use futures::{AsyncReadExt, FutureExt};
+use capnp_rpc::{pry, rpc_twoparty_capnp, twoparty, RpcSystem};
+use futures::{AsyncReadExt, Future, FutureExt};
 use log::info;
+use std::pin::Pin;
 use std::time::Instant;
 use std::{
     net::{SocketAddr, ToSocketAddrs},
@@ -8,7 +9,9 @@ use std::{
     time::Duration,
 };
 
-use capnp_study::{diamond_capnp, CounterImpl, NaiveCounterImpl, QuxImpl, SHORT_SLEEP_SECS};
+use capnp_study::{
+    diamond_capnp, CounterImpl, NaiveCounterImpl, QuxImpl, RoseImpl, SHORT_SLEEP_SECS,
+};
 
 const LONG_SLEEP_SECS: u64 = 0;
 
@@ -16,6 +19,31 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "127.0.0.1:3000".to_socket_addrs()?.next().unwrap();
 
     tokio::task::LocalSet::new().run_until(try_main(addr)).await
+}
+
+pub fn print_rose(
+    rose_client: diamond_capnp::rose::Client,
+) -> Pin<Box<dyn Future<Output = Result<(), Box<dyn std::error::Error>>>>> {
+    Box::pin(async move {
+        let shape = rose_client.shape_request().send().promise.await?;
+        let color = rose_client.color_request().send().promise.await?;
+        let name = rose_client.get_name_request().send().promise.await?;
+        let age = rose_client.get_age_request().send().promise.await?;
+        let sub = rose_client.get_sub_request().send().promise.await?;
+        println!(
+            "Rose: {}({}) color: {:?}",
+            name.get()?.get_name()?,
+            age.get()?.get_age(),
+            color.get()?.get_color()?,
+        );
+
+        for i in 0..sub.get()?.get_sub()?.reborrow().len() {
+            let rose = sub.get()?.get_sub()?.reborrow().get(i as u32)?;
+            print_rose(rose).await?;
+        }
+
+        Ok(())
+    })
 }
 
 async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
@@ -244,6 +272,24 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             println!("last c: {}", c);
             thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         }
+
+        let end = start.elapsed();
+        info!(
+            "time: {}.{:03}s",
+            end.as_secs(),
+            end.subsec_nanos() / 1_000_000
+        );
+
+        println!("done");
+    }
+
+    {
+        println!("rose test");
+
+        let start = Instant::now();
+
+        let rose_client: diamond_capnp::rose::Client = capnp_rpc::new_client(RoseImpl::new(3));
+        print_rose(rose_client).await?;
 
         let end = start.elapsed();
         info!(
