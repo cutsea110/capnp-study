@@ -30,11 +30,20 @@ pub fn print_rose(
         let name = rose_client.get_name_request().send().promise.await?;
         let age = rose_client.get_age_request().send().promise.await?;
         let sub = rose_client.get_sub_request().send().promise.await?;
+        let s = match shape.get()?.get_s()?.which()? {
+            diamond_capnp::rose::shape::Which::Circle(c) => {
+                format!("Circle")
+            }
+            diamond_capnp::rose::shape::Which::Rectangle(r) => {
+                format!("Rectangle")
+            }
+        };
         println!(
-            "Rose: {}({}) color: {:?}",
+            "Rose: {}({}) color: {:?}, shape: {}",
             name.get()?.get_name()?,
             age.get()?.get_age(),
             color.get()?.get_color()?,
+            s
         );
 
         for i in 0..sub.get()?.get_sub()?.reborrow().len() {
