@@ -32,10 +32,18 @@ pub fn print_rose(
         let sub = rose_client.get_sub_request().send().promise.await?;
         let s = match shape.get()?.get_s()?.which()? {
             diamond_capnp::rose::shape::Which::Circle(c) => {
-                format!("Circle")
+                let c = c?.get_radius_request().send().promise.await?;
+                format!("Circle: r = {}", c.get()?.get_r())
             }
             diamond_capnp::rose::shape::Which::Rectangle(r) => {
-                format!("Rectangle")
+                let r = r?;
+                let w = r.get_width_request().send().promise.await?;
+                let h = r.get_height_request().send().promise.await?;
+                format!(
+                    "Rectangle: w = {}, h = {}",
+                    w.get()?.get_w(),
+                    h.get()?.get_h()
+                )
             }
         };
         println!(
