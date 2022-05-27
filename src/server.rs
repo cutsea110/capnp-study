@@ -6,7 +6,7 @@ use std::net::{SocketAddr, ToSocketAddrs};
 use capnp_study::{diamond_capnp, FooImpl};
 
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "127.0.0.1:3000".to_socket_addrs()?.next().unwrap();
+    let addr = "127.0.0.1:4321".to_socket_addrs()?.next().unwrap();
 
     tokio::task::LocalSet::new().run_until(try_main(addr)).await
 }

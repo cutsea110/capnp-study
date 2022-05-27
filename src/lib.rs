@@ -73,6 +73,13 @@ impl diamond_capnp::foo::Server for FooImpl {
         trace!("get_naive_counter called");
         Promise::ok(())
     }
+    fn get_rose(
+        &mut self,
+        _: diamond_capnp::foo::GetRoseParams,
+        _: diamond_capnp::foo::GetRoseResults,
+    ) -> Promise<(), capnp::Error> {
+        panic!("TODO")
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]

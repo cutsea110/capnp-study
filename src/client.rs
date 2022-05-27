@@ -9,10 +9,10 @@ use std::{
     time::Duration,
 };
 
-use capnp_study::{constant, diamond_capnp, CounterImpl, NaiveCounterImpl, QuxImpl, RoseImpl};
+use capnp_study::{constant, diamond_capnp, QuxImpl};
 
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "127.0.0.1:3000".to_socket_addrs()?.next().unwrap();
+    let addr = "127.0.0.1:4321".to_socket_addrs()?.next().unwrap();
 
     tokio::task::LocalSet::new().run_until(try_main(addr)).await
 }
@@ -205,8 +205,9 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
 
         let start = Instant::now();
 
-        let counter_client: diamond_capnp::counter::Client =
-            capnp_rpc::new_client(CounterImpl::new(20));
+        let mut counter_request = foo.get_counter_request();
+        counter_request.get().set_limit(20);
+        let counter_client = counter_request.send().promise.await?.get()?.get_counter()?;
 
         while counter_client
             .next_request()
@@ -250,8 +251,9 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
 
         let start = Instant::now();
 
-        let counter_client: diamond_capnp::counter::Client =
-            capnp_rpc::new_client(CounterImpl::new(20));
+        let mut counter_request = foo.get_counter_request();
+        counter_request.get().set_limit(20);
+        let counter_client = counter_request.send().promise.await?.get()?.get_counter()?;
 
         let c = counter_client
             .run_fast_request()
@@ -280,16 +282,21 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
         trace!("fifth test");
         let start = Instant::now();
 
-        let counter_client: diamond_capnp::naive_counter::Client =
-            capnp_rpc::new_client(NaiveCounterImpl::new(20));
+        let mut counter_request = foo.get_counter_request();
+        counter_request.get().set_limit(20);
+        let counter_client = counter_request.send().promise.await?.get()?.get_counter()?;
 
         while counter_client
             .next_request()
             .send()
+            .pipeline
+            .get_exist()
+            .get_raw_request()
+            .send()
             .promise
             .await?
             .get()?
-            .get_exist()
+            .get_raw()
         {
             let c = counter_client
                 .get_count_request()
@@ -321,7 +328,9 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
 
         let start = Instant::now();
 
-        let rose_client: diamond_capnp::rose::Client = capnp_rpc::new_client(RoseImpl::new(7));
+        let mut rose_request = foo.get_rose_request();
+        rose_request.get().set_depth(3);
+        let rose_client = rose_request.send().promise.await?.get()?.get_rose()?;
         print_rose(rose_client).await?;
 
         let end = start.elapsed();
