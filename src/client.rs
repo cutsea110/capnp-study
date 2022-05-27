@@ -13,7 +13,7 @@ use capnp_study::{
     diamond_capnp, CounterImpl, NaiveCounterImpl, QuxImpl, RoseImpl, SHORT_SLEEP_SECS,
 };
 
-const LONG_SLEEP_SECS: u64 = 0;
+const LONG_SLEEP_SECS: u64 = 3;
 
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "127.0.0.1:3000".to_socket_addrs()?.next().unwrap();
@@ -26,19 +26,35 @@ pub fn print_rose(
 ) -> Pin<Box<dyn Future<Output = Result<(), Box<dyn std::error::Error>>>>> {
     Box::pin(async move {
         let shape = rose_client.shape_request().send().promise.await?;
+        trace!("shape ---");
+        thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let color = rose_client.color_request().send().promise.await?;
+        trace!("color ---");
+        thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let name = rose_client.get_name_request().send().promise.await?;
+        trace!("name ---");
+        thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let age = rose_client.get_age_request().send().promise.await?;
+        trace!("age ---");
+        thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let sub = rose_client.get_sub_request().send().promise.await?;
+        trace!("sub ---");
+        thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let s = match shape.get()?.get_s()?.which()? {
             diamond_capnp::rose::shape::Which::Circle(c) => {
                 let c = c?.get_radius_request().send().promise.await?;
+                trace!("circle radius ---");
+                thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
                 format!("Circle: r = {}", c.get()?.get_r())
             }
             diamond_capnp::rose::shape::Which::Rectangle(r) => {
                 let r = r?;
                 let w = r.get_width_request().send().promise.await?;
+                trace!("rectangle width ---");
+                thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
                 let h = r.get_height_request().send().promise.await?;
+                trace!("rectangle height ---");
+                thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
                 format!(
                     "Rectangle: w = {}, h = {}",
                     w.get()?.get_w(),
