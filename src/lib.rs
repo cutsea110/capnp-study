@@ -10,6 +10,7 @@ pub mod diamond_capnp {
 
 pub const SHORT_SLEEP_SECS: u64 = 0;
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
 pub struct FooImpl;
 impl FooImpl {
     pub fn new() -> Self {
@@ -74,6 +75,7 @@ impl diamond_capnp::foo::Server for FooImpl {
     }
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub struct BarImpl {
     name: String,
 }
@@ -98,6 +100,7 @@ impl diamond_capnp::bar::Server for BarImpl {
     }
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
 pub struct BazImpl {
     age: u16,
 }
@@ -120,6 +123,7 @@ impl diamond_capnp::baz::Server for BazImpl {
     }
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
 pub struct QuxImpl;
 impl QuxImpl {
     pub fn new() -> Self {
@@ -170,6 +174,7 @@ impl diamond_capnp::qux::Server for QuxImpl {
     }
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
 pub struct CounterImpl {
     limit: u16,
     c: u16,
@@ -245,6 +250,7 @@ impl diamond_capnp::counter::Server for CounterImpl {
     }
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
 pub struct BoolBoxImpl {
     b: bool,
 }
@@ -267,6 +273,7 @@ impl diamond_capnp::bool_box::Server for BoolBoxImpl {
     }
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
 pub struct NaiveCounterImpl {
     limit: u16,
     c: u16,
@@ -303,6 +310,7 @@ impl diamond_capnp::naive_counter::Server for NaiveCounterImpl {
     }
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
 pub struct CircleImpl {
     r: u16,
 }
@@ -323,6 +331,7 @@ impl diamond_capnp::rose::circle::Server for CircleImpl {
     }
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
 pub struct RectangleImpl {
     w: u16,
     h: u16,
@@ -353,6 +362,7 @@ impl diamond_capnp::rose::rectangle::Server for RectangleImpl {
     }
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
 pub struct RoseImpl {
     depth: u16,
 }
