@@ -300,6 +300,10 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
         println!("done");
     }
 
+    println!("wait...");
+    thread::sleep(Duration::from_secs(LONG_SLEEP_SECS));
+    println!("done");
+
     {
         println!("rose test");
 
