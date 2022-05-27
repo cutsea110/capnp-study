@@ -40,7 +40,7 @@ interface Rose {
   color   @1 () -> (color :Color);
   getName @2 () -> (name :Text);
   getAge  @3 () -> (age :UInt16);
-  getSub  @4 () -> (sub :Rose);
+  getSub  @4 () -> (sub :List(Rose));
 
   enum Color {
     red   @0;

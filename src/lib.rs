@@ -1,7 +1,7 @@
 use std::{thread, time::Duration};
 
 use capnp::capability::Promise;
-use capnp_rpc::{pry, rpc_capnp};
+use capnp_rpc::pry;
 use log::trace;
 
 pub mod diamond_capnp {
@@ -421,9 +421,13 @@ impl diamond_capnp::rose::Server for RoseImpl {
         _: diamond_capnp::rose::GetSubParams,
         mut results: diamond_capnp::rose::GetSubResults,
     ) -> Promise<(), capnp::Error> {
-        let client: diamond_capnp::rose::Client =
-            capnp_rpc::new_client(RoseImpl::new(self.depth - 1));
-        results.get().set_sub(client);
+        let mut list = results.get().init_sub((self.depth - 1) as u32);
+        for i in 0..(self.depth - 1) {
+            let client: diamond_capnp::rose::Client =
+                capnp_rpc::new_client(RoseImpl::new(self.depth - 1));
+            // Does this works good?
+            list.set(i as u32, client.client.hook);
+        }
 
         Promise::ok(())
     }
