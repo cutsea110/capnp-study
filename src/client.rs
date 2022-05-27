@@ -1,4 +1,4 @@
-use capnp_rpc::{pry, rpc_twoparty_capnp, twoparty, RpcSystem};
+use capnp_rpc::{rpc_twoparty_capnp, twoparty, RpcSystem};
 use futures::{AsyncReadExt, Future, FutureExt};
 use log::info;
 use std::pin::Pin;
