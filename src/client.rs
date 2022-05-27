@@ -1,6 +1,6 @@
 use capnp_rpc::{rpc_twoparty_capnp, twoparty, RpcSystem};
 use futures::{AsyncReadExt, Future, FutureExt};
-use log::info;
+use log::{info, trace};
 use std::pin::Pin;
 use std::time::Instant;
 use std::{
@@ -46,7 +46,7 @@ pub fn print_rose(
                 )
             }
         };
-        println!(
+        trace!(
             "Rose: {}({}) color: {:?}, shape: {}",
             name.get()?.get_name()?,
             age.get()?.get_age(),
@@ -79,42 +79,42 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
     tokio::task::spawn_local(Box::pin(rpc_system.map(|_| ())));
 
     {
-        println!("first test");
+        trace!("first test");
 
         let start = Instant::now();
 
         let mut bar_req = foo.get_bar_request();
         bar_req.get().set_name("Alice".into());
-        println!("NET!");
+        trace!("NET!");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let reply = bar_req.send().promise.await?;
-        println!("NET!");
+        trace!("NET!");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let bar = reply.get()?.get_bar()?;
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let reply = bar.read_val_request().send().promise.await?;
-        println!("NET!");
+        trace!("NET!");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let name = reply.get()?.get_val()?.to_string();
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
 
         let mut baz_req = foo.get_baz_request();
         baz_req.get().set_age(14);
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let reply = baz_req.send().promise.await?;
-        println!("NET!");
+        trace!("NET!");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let baz = reply.get()?.get_baz()?;
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let reply = baz.read_val_request().send().promise.await?;
-        println!("NET!");
+        trace!("NET!");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let age = reply.get()?.get_val();
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
 
         let desc = if age >= 18 { "Adult" } else { "Child" };
@@ -126,52 +126,52 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             end.subsec_nanos() / 1_000_000
         );
 
-        println!("name: {}({}), age: {}", name, desc, age);
+        trace!("name: {}({}), age: {}", name, desc, age);
     }
 
-    println!("wait...");
+    trace!("wait...");
     thread::sleep(Duration::from_secs(LONG_SLEEP_SECS));
-    println!("done");
+    trace!("done");
 
     {
-        println!("second test");
+        trace!("second test");
 
         let start = Instant::now();
 
         let mut bar_req = foo.get_bar_request();
         bar_req.get().set_name("Alice".into());
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let bar_client = bar_req.send().pipeline.get_bar();
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
 
         let mut baz_req = foo.get_baz_request();
         baz_req.get().set_age(14);
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let baz_client = baz_req.send().pipeline.get_baz();
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
 
         let qux_client: diamond_capnp::qux::Client = capnp_rpc::new_client(QuxImpl::new());
         let mut qux_req = qux_client.calc_request();
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         qux_req.get().set_bar(bar_client);
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         qux_req.get().set_baz(baz_client);
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let reply = qux_req.send().promise.await?;
-        println!("NET!");
+        trace!("NET!");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let name = reply.get()?.get_name()?;
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         let age = reply.get()?.get_age();
-        println!("---");
+        trace!("---");
         thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
 
         let end = start.elapsed();
@@ -181,15 +181,15 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             end.subsec_nanos() / 1_000_000
         );
 
-        println!("name: {}, age: {}", name, age);
+        trace!("name: {}, age: {}", name, age);
     }
 
-    println!("wait...");
+    trace!("wait...");
     thread::sleep(Duration::from_secs(LONG_SLEEP_SECS));
-    println!("done");
+    trace!("done");
 
     {
-        println!("third test");
+        trace!("third test");
 
         let start = Instant::now();
 
@@ -215,7 +215,7 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
                 .await?
                 .get()?
                 .get_count();
-            println!("last c: {}", c);
+            trace!("last c: {}", c);
             thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         }
 
@@ -226,15 +226,15 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             end.subsec_nanos() / 1_000_000
         );
 
-        println!("Done");
+        trace!("Done");
     }
 
-    println!("wait...");
+    trace!("wait...");
     thread::sleep(Duration::from_secs(LONG_SLEEP_SECS));
-    println!("done");
+    trace!("done");
 
     {
-        println!("fourth test");
+        trace!("fourth test");
 
         let start = Instant::now();
 
@@ -248,7 +248,7 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             .await?
             .get()?
             .get_count();
-        println!("last c: {}", c);
+        trace!("last c: {}", c);
 
         let end = start.elapsed();
         info!(
@@ -257,15 +257,15 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             end.subsec_nanos() / 1_000_000
         );
 
-        println!("Done");
+        trace!("Done");
     }
 
-    println!("wait...");
+    trace!("wait...");
     thread::sleep(Duration::from_secs(LONG_SLEEP_SECS));
-    println!("done");
+    trace!("done");
 
     {
-        println!("fifth test");
+        trace!("fifth test");
         let start = Instant::now();
 
         let counter_client: diamond_capnp::naive_counter::Client =
@@ -286,7 +286,7 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
                 .await?
                 .get()?
                 .get_count();
-            println!("last c: {}", c);
+            trace!("last c: {}", c);
             thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
         }
 
@@ -297,19 +297,19 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             end.subsec_nanos() / 1_000_000
         );
 
-        println!("done");
+        trace!("done");
     }
 
-    println!("wait...");
+    trace!("wait...");
     thread::sleep(Duration::from_secs(LONG_SLEEP_SECS));
-    println!("done");
+    trace!("done");
 
     {
-        println!("rose test");
+        trace!("rose test");
 
         let start = Instant::now();
 
-        let rose_client: diamond_capnp::rose::Client = capnp_rpc::new_client(RoseImpl::new(3));
+        let rose_client: diamond_capnp::rose::Client = capnp_rpc::new_client(RoseImpl::new(7));
         print_rose(rose_client).await?;
 
         let end = start.elapsed();
@@ -319,7 +319,7 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
             end.subsec_nanos() / 1_000_000
         );
 
-        println!("done");
+        trace!("done");
     }
 
     Ok(())
