@@ -8,7 +8,7 @@ pub mod diamond_capnp {
     include!(concat!(env!("OUT_DIR"), "/diamond_capnp.rs"));
 }
 
-pub const SHORT_SLEEP_SECS: u64 = 1;
+pub mod constant;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
 pub struct FooImpl;
@@ -232,7 +232,7 @@ impl diamond_capnp::counter::Server for CounterImpl {
                 .get()?
                 .get_raw()
             {
-                thread::sleep(Duration::from_secs(SHORT_SLEEP_SECS));
+                thread::sleep(Duration::from_secs(constant::SHORT_SLEEP_SECS));
                 let c = counter_client
                     .get_count_request()
                     .send()
