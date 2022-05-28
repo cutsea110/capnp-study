@@ -282,21 +282,22 @@ async fn try_main(addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
         trace!("fifth test");
         let start = Instant::now();
 
-        let mut counter_request = foo.get_counter_request();
+        let mut counter_request = foo.get_naive_counter_request();
         counter_request.get().set_limit(20);
-        let counter_client = counter_request.send().promise.await?.get()?.get_counter()?;
-
-        while counter_client
-            .next_request()
-            .send()
-            .pipeline
-            .get_exist()
-            .get_raw_request()
+        let counter_client = counter_request
             .send()
             .promise
             .await?
             .get()?
-            .get_raw()
+            .get_naive_counter()?;
+
+        while counter_client
+            .next_request()
+            .send()
+            .promise
+            .await?
+            .get()?
+            .get_exist()
         {
             let c = counter_client
                 .get_count_request()
