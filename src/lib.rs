@@ -75,10 +75,16 @@ impl diamond_capnp::foo::Server for FooImpl {
     }
     fn get_rose(
         &mut self,
-        _: diamond_capnp::foo::GetRoseParams,
-        _: diamond_capnp::foo::GetRoseResults,
+        params: diamond_capnp::foo::GetRoseParams,
+        mut results: diamond_capnp::foo::GetRoseResults,
     ) -> Promise<(), capnp::Error> {
-        panic!("TODO")
+        let limit = pry!(params.get()).get_depth();
+        trace!("get_rose limit: {}", limit);
+        let rose: diamond_capnp::rose::Client = capnp_rpc::new_client(RoseImpl::new(limit));
+        results.get().set_rose(rose);
+
+        trace!("get_rose called");
+        Promise::ok(())
     }
 }
 
