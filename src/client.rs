@@ -1,6 +1,6 @@
 use capnp_rpc::{rpc_twoparty_capnp, twoparty, RpcSystem};
 use futures::{AsyncReadExt, Future, FutureExt};
-use log::{info, trace};
+use log::{debug, info, trace};
 use std::pin::Pin;
 use std::time::Instant;
 use std::{
@@ -8,11 +8,29 @@ use std::{
     thread,
     time::Duration,
 };
+use structopt::{clap, StructOpt};
 
 use capnp_study::{constant, diamond_capnp, QuxImpl};
 
+#[derive(Debug, StructOpt)]
+#[structopt(setting(clap::AppSettings::ColoredHelp))]
+struct Opt {
+    #[structopt(short = "h", long = "host", default_value("127.0.0.1"))]
+    host: String,
+
+    #[structopt(short = "p", long = "port", default_value("4321"))]
+    port: u16,
+}
+
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "127.0.0.1:4321".to_socket_addrs()?.next().unwrap();
+    let opt = Opt::from_args();
+    debug!("Opt: {:?}", opt);
+
+    let addr = format!("{}:{}", opt.host, opt.port)
+        .as_str()
+        .to_socket_addrs()?
+        .next()
+        .unwrap();
 
     tokio::task::LocalSet::new().run_until(try_main(addr)).await
 }
