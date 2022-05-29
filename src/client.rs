@@ -1,6 +1,6 @@
 use capnp_rpc::{rpc_twoparty_capnp, twoparty, RpcSystem};
 use futures::{AsyncReadExt, Future, FutureExt};
-use log::{debug, info, trace};
+use log::{info, trace};
 use std::pin::Pin;
 use std::time::Instant;
 use std::{
@@ -8,24 +8,12 @@ use std::{
     thread,
     time::Duration,
 };
-use structopt::{clap, StructOpt};
 
 use capnp_study::{constant, diamond_capnp, QuxImpl};
 
-#[derive(Debug, StructOpt)]
-#[structopt(setting(clap::AppSettings::ColoredHelp))]
-struct Opt {
-    #[structopt(short = "h", long = "host", default_value("127.0.0.1"))]
-    host: String,
+use crate::opt::Opt;
 
-    #[structopt(short = "p", long = "port", default_value("4321"))]
-    port: u16,
-}
-
-pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let opt = Opt::from_args();
-    debug!("Opt: {:?}", opt);
-
+pub async fn main(opt: &Opt) -> Result<(), Box<dyn std::error::Error>> {
     let addr = format!("{}:{}", opt.host, opt.port)
         .as_str()
         .to_socket_addrs()?
