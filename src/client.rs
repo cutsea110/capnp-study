@@ -26,6 +26,8 @@ pub async fn main(opt: &Opt) -> Result<(), Box<dyn std::error::Error>> {
 pub fn print_rose(
     rose_client: diamond_capnp::rose::Client,
 ) -> Pin<Box<dyn Future<Output = Result<(), Box<dyn std::error::Error>>>>> {
+    trace!("printing rose");
+
     Box::pin(async move {
         let shape = rose_client.shape_request().send().promise.await?;
         trace!("shape ---");
@@ -77,6 +79,7 @@ pub fn print_rose(
             print_rose(rose).await?;
         }
 
+        trace!("printed rose");
         Ok(())
     })
 }
