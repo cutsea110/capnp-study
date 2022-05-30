@@ -338,8 +338,10 @@ impl diamond_capnp::rose::circle::Server for CircleImpl {
         _: diamond_capnp::rose::circle::GetRadiusParams,
         mut results: diamond_capnp::rose::circle::GetRadiusResults,
     ) -> Promise<(), capnp::Error> {
+        trace!("get_radius r: {}", self.r);
         results.get().set_r(self.r);
 
+        trace!("get_radius called");
         Promise::ok(())
     }
 }
@@ -360,8 +362,10 @@ impl diamond_capnp::rose::rectangle::Server for RectangleImpl {
         _: diamond_capnp::rose::rectangle::GetWidthParams,
         mut results: diamond_capnp::rose::rectangle::GetWidthResults,
     ) -> Promise<(), capnp::Error> {
+        trace!("get_width w: {}", self.w);
         results.get().set_w(self.w);
 
+        trace!("get_width called");
         Promise::ok(())
     }
     fn get_height(
@@ -369,8 +373,10 @@ impl diamond_capnp::rose::rectangle::Server for RectangleImpl {
         _: diamond_capnp::rose::rectangle::GetHeightParams,
         mut results: diamond_capnp::rose::rectangle::GetHeightResults,
     ) -> Promise<(), capnp::Error> {
+        trace!("get_height h: {}", self.h);
         results.get().set_h(self.h);
 
+        trace!("get_height called");
         Promise::ok(())
     }
 }
@@ -390,6 +396,7 @@ impl diamond_capnp::rose::Server for RoseImpl {
         _: diamond_capnp::rose::ShapeParams,
         mut results: diamond_capnp::rose::ShapeResults,
     ) -> Promise<(), capnp::Error> {
+        trace!("shape");
         match self.depth % 2 {
             0 => {
                 let circle: diamond_capnp::rose::circle::Client =
@@ -403,6 +410,7 @@ impl diamond_capnp::rose::Server for RoseImpl {
             }
         };
 
+        trace!("shape called");
         Promise::ok(())
     }
     fn color(
@@ -410,6 +418,7 @@ impl diamond_capnp::rose::Server for RoseImpl {
         _: diamond_capnp::rose::ColorParams,
         mut results: diamond_capnp::rose::ColorResults,
     ) -> Promise<(), capnp::Error> {
+        trace!("color");
         let color = match self.depth % 3 {
             0 => diamond_capnp::rose::Color::Red,
             1 => diamond_capnp::rose::Color::Green,
@@ -417,6 +426,7 @@ impl diamond_capnp::rose::Server for RoseImpl {
         };
         results.get().set_color(color);
 
+        trace!("color called");
         Promise::ok(())
     }
     fn get_name(
@@ -424,10 +434,12 @@ impl diamond_capnp::rose::Server for RoseImpl {
         _: diamond_capnp::rose::GetNameParams,
         mut results: diamond_capnp::rose::GetNameResults,
     ) -> Promise<(), capnp::Error> {
+        trace!("get_name");
         results
             .get()
             .set_name(format!("name{}", self.depth).as_str().into());
 
+        trace!("get_name called");
         Promise::ok(())
     }
     fn get_age(
@@ -435,8 +447,10 @@ impl diamond_capnp::rose::Server for RoseImpl {
         _: diamond_capnp::rose::GetAgeParams,
         mut results: diamond_capnp::rose::GetAgeResults,
     ) -> Promise<(), capnp::Error> {
+        trace!("get_age");
         results.get().set_age(self.depth * 2);
 
+        trace!("get_age called");
         Promise::ok(())
     }
     fn get_sub(
@@ -445,6 +459,7 @@ impl diamond_capnp::rose::Server for RoseImpl {
         mut results: diamond_capnp::rose::GetSubResults,
     ) -> Promise<(), capnp::Error> {
         let mut list = results.get().init_sub((self.depth - 1) as u32);
+        trace!("get_sub len of list: {}", list.len());
         for i in 0..(self.depth - 1) {
             let client: diamond_capnp::rose::Client =
                 capnp_rpc::new_client(RoseImpl::new(self.depth - 1));
@@ -452,6 +467,7 @@ impl diamond_capnp::rose::Server for RoseImpl {
             list.set(i as u32, client.client.hook);
         }
 
+        trace!("get_sub called");
         Promise::ok(())
     }
 }
